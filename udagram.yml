@@ -6,7 +6,7 @@ Parameters:
 
   ImageId:
     Type: AWS::EC2::Image::Id
-    Description: Ubuntu 22 AMI ID
+    Description: AMI ID for the web servers
 
 Resources:
   LBSecurityGroup:
@@ -133,6 +133,12 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref ImageId
         InstanceType: t2.micro
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              VolumeSize: 10
+              VolumeType: gp2
+              DeleteOnTermination: true
         IamInstanceProfile:
           Arn: !GetAtt WebAppInstanceProfile.Arn
         SecurityGroupIds:
@@ -151,8 +157,8 @@ Resources:
             aws s3 cp /tmp/index.html s3://${UdagramBucket}/index.html
             mkdir -p /var/www/html
             mkdir -p /usr/share/nginx/html
-            aws s3 cp s3://${UdagramBucket}/index.html /var/www/html/index.html
-            aws s3 cp s3://${UdagramBucket}/index.html /usr/share/nginx/html/index.html
+            cp /tmp/index.html /var/www/html/index.html
+            cp /tmp/index.html /usr/share/nginx/html/index.html
             systemctl enable --now nginx
 
   WebAppGroup:

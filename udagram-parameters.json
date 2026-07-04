@@ -1,0 +1,4 @@
+[
+  { "ParameterKey": "EnvironmentName", "ParameterValue": "udagram" },
+  { "ParameterKey": "ImageId", "ParameterValue": "ami-06067086cf86c58e6" }
+]

@@ -1,99 +1,179 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
   <title id="title">Udagram AWS architecture diagram</title>
-  <desc id="desc">Internet traffic reaches an internet gateway, public application load balancer, private EC2 auto scaling group, NAT gateway, IAM role, and S3 bucket.</desc>
+  <desc id="desc">AWS Cloud architecture with region, VPC, two availability zones, public and private subnets, internet gateway, NAT gateway, application load balancer, auto scaling group, EC2 instances, security groups, IAM role, and S3 bucket.</desc>
   <defs>
     <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
       <path d="M2,2 L10,6 L2,10 Z" fill="#334155"/>
     </marker>
     <style>
-      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 8; }
-      .vpc { fill: #f8fafc; stroke: #0f766e; stroke-width: 3; rx: 10; }
-      .public { fill: #ecfeff; stroke: #0891b2; stroke-width: 2; rx: 8; }
-      .private { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; rx: 8; }
-      .sg { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; rx: 8; }
-      .data { fill: #eef2ff; stroke: #4f46e5; stroke-width: 2; rx: 8; }
-      .title { font: 700 22px Arial, sans-serif; fill: #0f172a; }
-      .label { font: 600 16px Arial, sans-serif; fill: #111827; }
-      .small { font: 13px Arial, sans-serif; fill: #334155; }
-      .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
-      .dashed { stroke-dasharray: 7 6; }
+      .canvas { fill: #fff; }
+      .cloud { fill: #f8fafc; stroke: #27748a; stroke-width: 4; }
+      .region { fill: none; stroke: #6b9aaa; stroke-width: 2; stroke-dasharray: 8 8; }
+      .vpc { fill: #ffffff; stroke: #27748a; stroke-width: 4; }
+      .az { fill: none; stroke: #6b9aaa; stroke-width: 2; stroke-dasharray: 8 8; }
+      .public { fill: #f7fff8; stroke: #4fb06d; stroke-width: 4; }
+      .private { fill: #fffafa; stroke: #c94b55; stroke-width: 4; }
+      .asg { fill: none; stroke: #c94b55; stroke-width: 2; stroke-dasharray: 8 8; }
+      .sg { fill: #fff9f5; stroke: #c94b55; stroke-width: 4; }
+      .icon-blue { stroke: #27748a; fill: none; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-green { stroke: #4fb06d; fill: none; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-red { stroke: #c94b55; fill: none; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .text-xl { font: 700 30px Arial, sans-serif; fill: #1f2937; }
+      .text-lg { font: 700 22px Arial, sans-serif; fill: #1f2937; }
+      .text-md { font: 600 18px Arial, sans-serif; fill: #1f2937; }
+      .text-sm { font: 14px Arial, sans-serif; fill: #334155; }
+      .label-blue { font: 700 18px Arial, sans-serif; fill: #27748a; }
+      .label-green { font: 700 17px Arial, sans-serif; fill: #2f8f50; }
+      .label-red { font: 700 17px Arial, sans-serif; fill: #b33e48; }
+      .arrow { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .line { stroke: #334155; stroke-width: 3; fill: none; }
+      .cidr { fill: #eef9fb; stroke: #27748a; stroke-width: 2; }
     </style>
+
+    <g id="aws-logo">
+      <text x="0" y="0" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#27748a">aws</text>
+      <path d="M4 9 C18 18 38 18 54 8" stroke="#27748a" stroke-width="3" fill="none"/>
+      <path d="M48 5 L56 8 L49 13" stroke="#27748a" stroke-width="3" fill="none"/>
+    </g>
+
+    <g id="lock">
+      <rect x="-13" y="-5" width="26" height="24" rx="3" class="icon-blue"/>
+      <path d="M-8 -5 V-16 C-8 -25 8 -25 8 -16 V-5" class="icon-blue"/>
+      <path d="M0 4 V11" class="icon-blue"/>
+    </g>
+
+    <g id="alb-icon">
+      <circle cx="0" cy="0" r="48" class="icon-green"/>
+      <path d="M-22 -20 H22 V20 H-22 Z" class="icon-green"/>
+      <path d="M-22 -10 L-42 -25 M-22 0 L-42 0 M-22 10 L-42 25" class="icon-green"/>
+      <path d="M22 -10 L42 -25 M22 0 L42 0 M22 10 L42 25" class="icon-green"/>
+      <path d="M-8 -32 L0 -44 L8 -32 M-8 32 L0 44 L8 32" class="icon-green"/>
+    </g>
+
+    <g id="ec2-icon">
+      <rect x="-40" y="-30" width="48" height="44" class="icon-red"/>
+      <rect x="-15" y="-8" width="48" height="44" class="icon-red"/>
+      <rect x="10" y="14" width="48" height="44" class="icon-red"/>
+    </g>
+
+    <g id="asg-icon">
+      <circle cx="0" cy="0" r="43" class="icon-red"/>
+      <path d="M0 -31 V31 M0 -31 L-10 -18 M0 -31 L10 -18 M0 31 L-10 18 M0 31 L10 18" class="icon-red"/>
+      <path d="M-31 0 H31 M-31 0 L-18 -10 M-31 0 L-18 10 M31 0 L18 -10 M31 0 L18 10" class="icon-red"/>
+    </g>
+
+    <g id="igw-icon">
+      <circle cx="0" cy="0" r="52" class="icon-blue"/>
+      <path d="M-22 26 V-18 C-22 -34 22 -34 22 -18 V26" class="icon-blue"/>
+      <path d="M-9 26 V-18 M9 26 V-18" class="icon-blue"/>
+    </g>
+
+    <g id="nat-icon">
+      <circle cx="0" cy="0" r="45" class="icon-blue"/>
+      <path d="M-24 0 H24 M8 -16 L24 0 L8 16" class="icon-blue"/>
+      <path d="M0 -24 V24 M-16 8 L0 24 L16 8" class="icon-blue"/>
+    </g>
+
+    <g id="s3-icon">
+      <path d="M-42 -10 C-38 -42 8 -48 22 -24 C49 -25 61 12 36 27 H-31 C-59 24 -62 -8 -42 -10Z" class="icon-blue"/>
+      <path d="M0 30 V-24 M0 -24 L-17 -6 M0 -24 L17 -6" class="icon-blue"/>
+      <path d="M-24 6 L0 30 L24 6" class="icon-blue"/>
+    </g>
+
+    <g id="iam-icon">
+      <circle cx="0" cy="0" r="44" class="icon-blue"/>
+      <path d="M-24 18 H24 M-16 18 V-8 H16 V18 M-6 -8 V-22 H6 V-8" class="icon-blue"/>
+    </g>
   </defs>
 
-  <rect width="1180" height="760" fill="#ffffff"/>
-  <text x="40" y="44" class="title">Udagram Web Application - AWS CloudFormation Architecture</text>
+  <rect class="canvas" width="1400" height="860"/>
 
-  <rect x="40" y="90" width="1100" height="560" class="vpc"/>
-  <text x="62" y="122" class="label">VPC: 10.0.0.0/16</text>
+  <rect x="14" y="14" width="1372" height="820" class="cloud"/>
+  <use href="#aws-logo" x="34" y="50"/>
+  <text x="128" y="55" class="text-xl">AWS Cloud</text>
 
-  <rect x="75" y="160" width="490" height="190" class="public"/>
-  <text x="95" y="190" class="label">Public Subnets</text>
-  <text x="95" y="216" class="small">10.0.0.0/24 - AZ 1</text>
-  <text x="95" y="237" class="small">10.0.1.0/24 - AZ 2</text>
+  <rect x="32" y="86" width="1328" height="704" class="region"/>
+  <path d="M34 100 h32 v28 h-32 z" fill="#27748a"/>
+  <text x="88" y="124" class="text-lg">Region: us-east-1</text>
 
-  <rect x="615" y="160" width="490" height="190" class="private"/>
-  <text x="635" y="190" class="label">Private Subnets</text>
-  <text x="635" y="216" class="small">10.0.2.0/24 - AZ 1</text>
-  <text x="635" y="237" class="small">10.0.3.0/24 - AZ 2</text>
+  <rect x="82" y="150" width="1124" height="500" class="vpc"/>
+  <text x="150" y="210" class="text-xl">VPC</text>
+  <text x="150" y="238" class="text-sm">10.0.0.0/16</text>
+  <use href="#lock" x="120" y="202"/>
 
-  <rect x="95" y="265" width="180" height="56" class="box"/>
-  <text x="120" y="299" class="label">NAT Gateway</text>
+  <rect x="108" y="266" width="500" height="310" class="az"/>
+  <text x="255" y="304" class="text-lg">Availability Zone 1</text>
+  <rect x="146" y="342" width="202" height="190" class="public"/>
+  <use href="#lock" x="174" y="378"/>
+  <text x="205" y="383" class="label-green">Public Subnet</text>
+  <text x="205" y="407" class="text-sm">10.0.0.0/24</text>
+  <use href="#alb-icon" x="247" y="462"/>
 
-  <rect x="305" y="248" width="225" height="86" class="box"/>
-  <text x="337" y="282" class="label">Application Load</text>
-  <text x="365" y="306" class="label">Balancer</text>
-  <text x="336" y="326" class="small">Internet-facing, HTTP :80</text>
+  <rect x="388" y="342" width="202" height="190" class="private"/>
+  <use href="#lock" x="416" y="378"/>
+  <text x="447" y="383" class="label-red">Private Subnet</text>
+  <text x="447" y="407" class="text-sm">10.0.2.0/24</text>
+  <use href="#ec2-icon" x="480" y="443"/>
 
-  <rect x="648" y="250" width="205" height="82" class="box"/>
-  <text x="684" y="281" class="label">Auto Scaling</text>
-  <text x="700" y="305" class="label">Group</text>
-  <text x="673" y="325" class="small">4 EC2 t2.micro instances</text>
+  <rect x="646" y="266" width="500" height="310" class="az"/>
+  <text x="793" y="304" class="text-lg">Availability Zone 2</text>
+  <rect x="684" y="342" width="202" height="190" class="private"/>
+  <use href="#lock" x="712" y="378"/>
+  <text x="743" y="383" class="label-red">Private Subnet</text>
+  <text x="743" y="407" class="text-sm">10.0.3.0/24</text>
+  <use href="#ec2-icon" x="776" y="443"/>
 
-  <rect x="880" y="250" width="190" height="82" class="box"/>
-  <text x="912" y="281" class="label">Launch Template</text>
-  <text x="912" y="305" class="small">Root volume: 10 GB</text>
-  <text x="912" y="325" class="small">UserData installs nginx</text>
+  <rect x="926" y="342" width="202" height="190" class="public"/>
+  <use href="#lock" x="954" y="378"/>
+  <text x="985" y="383" class="label-green">Public Subnet</text>
+  <text x="985" y="407" class="text-sm">10.0.1.0/24</text>
+  <use href="#nat-icon" x="1027" y="462"/>
 
-  <rect x="75" y="398" width="240" height="96" class="sg"/>
-  <text x="97" y="430" class="label">Load Balancer SG</text>
-  <text x="97" y="456" class="small">Inbound HTTP 80 from 0.0.0.0/0</text>
-  <text x="97" y="477" class="small">Outbound all traffic</text>
+  <rect x="360" y="78" width="560" height="470" class="asg"/>
+  <text x="514" y="126" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#c94b55">Auto Scaling Group</text>
+  <use href="#asg-icon" x="640" y="198"/>
 
-  <rect x="345" y="398" width="260" height="96" class="sg"/>
-  <text x="367" y="430" class="label">Web Server SG</text>
-  <text x="367" y="456" class="small">Inbound HTTP 80 from ALB SG</text>
-  <text x="367" y="477" class="small">Outbound all traffic</text>
+  <rect x="552" y="430" width="304" height="108" class="sg"/>
+  <text x="628" y="468" class="label-red">Web Server Security Group</text>
+  <text x="612" y="496" class="text-sm">Allows HTTP :80 from ALB security group</text>
 
-  <rect x="660" y="398" width="210" height="96" class="data"/>
-  <text x="697" y="430" class="label">IAM Role</text>
-  <text x="693" y="456" class="small">EC2 instance profile</text>
-  <text x="688" y="477" class="small">S3 GetObject / PutObject</text>
+  <rect x="548" y="656" width="310" height="110" class="sg"/>
+  <text x="636" y="694" class="label-red">ALB Security Group</text>
+  <text x="601" y="724" class="text-sm">Allows HTTP :80 from the Internet</text>
 
-  <rect x="900" y="398" width="170" height="96" class="data"/>
-  <text x="945" y="430" class="label">S3 Bucket</text>
-  <text x="934" y="456" class="small">index.html</text>
-  <text x="923" y="477" class="small">Static app content</text>
+  <use href="#igw-icon" x="1282" y="396"/>
+  <text x="1241" y="475" class="label-blue">Internet Gateway</text>
+  <use href="#s3-icon" x="1282" y="640"/>
+  <text x="1244" y="718" class="label-blue">S3 Bucket</text>
+  <text x="1258" y="742" class="text-sm">index.html</text>
 
-  <rect x="95" y="675" width="180" height="52" class="box"/>
-  <text x="136" y="707" class="label">Internet User</text>
+  <use href="#iam-icon" x="1027" y="708"/>
+  <text x="987" y="778" class="label-blue">IAM Role</text>
 
-  <rect x="395" y="675" width="205" height="52" class="box"/>
-  <text x="428" y="707" class="label">Internet Gateway</text>
+  <rect x="196" y="650" width="106" height="30" class="cidr"/>
+  <text x="207" y="671" class="text-sm">0.0.0.0/0</text>
+  <rect x="436" y="650" width="106" height="30" class="cidr"/>
+  <text x="447" y="671" class="text-sm">10.0.2.0/24</text>
+  <rect x="734" y="650" width="106" height="30" class="cidr"/>
+  <text x="745" y="671" class="text-sm">10.0.3.0/24</text>
+  <rect x="976" y="650" width="106" height="30" class="cidr"/>
+  <text x="987" y="671" class="text-sm">0.0.0.0/0</text>
 
-  <path d="M275 701 H395" class="arrow"/>
-  <path d="M498 675 V335" class="arrow"/>
-  <path d="M530 291 H648" class="arrow"/>
-  <path d="M853 291 H880" class="arrow"/>
-  <path d="M475 398 V334" class="arrow"/>
-  <path d="M605 446 H648" class="arrow"/>
-  <path d="M765 398 V332" class="arrow"/>
-  <path d="M870 446 H900" class="arrow"/>
-  <path d="M750 332 V398" class="arrow dashed"/>
-  <path d="M650 291 H565" class="arrow dashed"/>
-  <path d="M185 265 V145 H498" class="arrow dashed"/>
+  <text x="72" y="712" class="text-md">User / Browser</text>
+  <path d="M180 704 H552" class="arrow"/>
+  <path d="M704 656 V538" class="arrow"/>
+  <path d="M552 484 H533" class="arrow"/>
+  <path d="M856 484 H817" class="arrow"/>
+  <path d="M348 462 H388" class="arrow"/>
+  <path d="M926 462 H886" class="arrow"/>
+  <path d="M1128 462 H1218" class="arrow"/>
+  <path d="M333 342 C420 250 560 234 640 250 C720 234 880 250 970 342" class="line"/>
+  <path d="M1027 532 V656" class="arrow"/>
+  <path d="M1070 708 H1220" class="arrow"/>
+  <path d="M835 482 C1000 500 1130 590 1222 640" class="arrow"/>
 
-  <text x="556" y="286" class="small">HTTP from ALB to EC2</text>
-  <text x="770" y="374" class="small">Instance profile</text>
-  <text x="882" y="374" class="small">S3 upload/read</text>
-  <text x="230" y="150" class="small">Private subnet egress via NAT</text>
+  <text x="278" y="698" class="text-sm">HTTP :80 to public ALB</text>
+  <text x="712" y="610" class="text-sm">ALB forwards to private EC2</text>
+  <text x="1072" y="598" class="text-sm">Private egress via NAT</text>
+  <text x="1088" y="680" class="text-sm">EC2 uploads/reads index.html</text>
 </svg>
